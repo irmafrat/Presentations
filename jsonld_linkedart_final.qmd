@@ -4,8 +4,11 @@ author: "Irma Fraticelli"
 date: "2025-05-02"
 format:
   revealjs:
+    min-scale: 0.7
+    max-scale: 0.8
     theme: solarized
     slide-number: true
+    code-font-size: 12px
     scroll: true
 ---
 
