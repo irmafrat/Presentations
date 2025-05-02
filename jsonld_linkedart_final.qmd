@@ -1,0 +1,1176 @@
+---
+title: "Modeling Manuscripts in Linked Art"
+author: "Irma Fraticelli"
+date: "2025-05-02"
+format:
+  revealjs:
+    theme: solarized
+    slide-number: true
+    scroll: true
+---
+
+## Introduction
+
+- What is Linked Art?
+- Why manuscripts need special treatment?
+
+::: notes
+Presenter:
+Welcome everyone! Today we’ll dive into how Linked Art models manuscripts. We’ll cover the difference between the *Work* (the conceptual text) and the *Object* (the physical codex or scroll), and see concrete JSON-LD examples.
+:::
+
+---
+
+## Core JSON-LD Structure
+
+Every Linked Art document needs:
+
+- `@context` – Linked Art JSON-LD context URI  
+- `id` – Unique HTTP(S) URI  
+- `type` – CIDOC-CRM class or RDF class . (e.g., `HumanMadeObject`, `LinguisticObject`, `Actor`, `Event`)  
+- `_label` – Human-readable label  
+
+::: notes
+Presenter:
+Quick refresher on the fundamentals: context, URI identity, RDF type, and the display label. This baseline applies to manuscripts just as much as paintings or digital items.
+:::
+
+---
+
+## Core Classes for Manuscripts
+
+| Class               | Role                                 |
+|---------------------|--------------------------------------|
+| **LinguisticObject**| The *text* content (Work)            |
+| **HumanMadeObject** | The *physical* codex or scroll (Object) |
+| **DigitalObject**   | Scanned or born-digital images/text  |
+| **Dimension**       | Measurements (leaves, folios, size)  |
+| **Type**            | Material categories (parchment, paper) |
+
+Reference: [LinkedArt, Basic Patterns](https://linked.art/model/base/)
+
+
+::: notes
+Presenter:
+Here are the key classes. Note that the *Work* side is covered by `LinguisticObject`, while the *Object* side is `HumanMadeObject`. We’ll dive deeper next.
+:::
+
+---
+
+## Manuscript Work vs. Manuscript Object
+
+| Aspect                 | Manuscript **Work**                     | Manuscript **Object**                       |
+|------------------------|-----------------------------------------|----------------------------------------------|
+| **Definition**         | The intellectual text (author, title)   | The physical codex or scroll                 |
+| **Type**               | `Work` (a subclass of PropositionalObject) | `HumanMadeObject`                            |
+| **Key Properties**     | `title`, `creator`, `language`, `subject` | `material`, `carrier`, `dimensions`, `binding` |
+| **Relationships**      | `derived_from`, `translation_of`        | `material_used`, `physical_production`       |
+
+
+::: notes
+Presenter:
+Emphasize: the *Work* is conceptual; the *Object* is tangible. A single Work may have multiple Objects (e.g., two copies), and one Object carries exactly one Work.
+:::
+
+---
+
+## JSON-LD Example: Work
+
+```yaml
+id: "https://data.example.org/work/001"
+type: Work
+_label: "Codex Gigas"
+title: "Codex Gigas"
+creator:
+  - type: Person
+    _label: "Brother Herman"
+language: 
+  - _label: "Latin"
+subject:
+  - _label: "Religious texts"
+derived_from: []
+```
+
+::: notes 
+Presenter
+This slide shows how you’d declare the Work. You see type: Work, the _label and properties like creator and language.
+:::
+
+---
+
+## JSON-LD Example: Object
+
+```yaml
+id: "https://data.example.org/object/001a"
+type: HumanMadeObject
+_label: "Codex Gigas (Prague Copy)"
+carries:
+  - type: LinguisticObject
+    id: "https://data.example.org/work/001"
+    _label: "Codex Gigas"
+material:
+  - _label: "Parchment"
+dimension:
+  - type: Dimension
+    value: 636
+    _label: "Leaves"
+binding:
+  - _label: "Wooden boards with leather"
+currentOwner:
+  - type: Group
+    _label: "Prague National Library"
+```
+
+::: notes 
+Presenter:
+Here’s the Object. Notice carries linking back to the Work, and the physical attributes (material, dimension, binding, currentOwner). 
+:::
+
+---
+
+## Which Properties Belong Where?
+
+- Work
+
+    - Intellectual properties: `title`, `language`, `subject`, `derived_from`, `translation_of`
+
+- Object
+
+    - Physical properties: `material`, `dimension`, `binding`, `production`, `currentOwner`
+
+::: notes 
+Presenter:
+Summarize: don’t mix up text-centric and object-centric properties. If you’re describing the content: it’s a Work. If you’re describing the codex: it’s an Object. 
+:::
+
+
+---
+
+## Structural Link: carries
+
+The Object carries the Work:
+
+```yaml
+carries:
+  - type: LinguisticObject
+    id: <Work URI>
+    _label: <Work label>
+```
+- Ensures clear separation and linkage.
+
+::: notes 
+Presenter:
+Remember: carries is the magic property that connects the physical container to the conceptual text. Always include it for manuscripts. 
+:::
+
+---
+
+## Recap & Best Practices
+
+- Model the intellectual text as Work (type: Work or LinguisticObject subclass).
+
+- Model the physical codex as Object (type: HumanMadeObject).
+
+- Link via carries.
+
+- Keep physical vs. conceptual properties distinct.
+
+- Use controlled vocabularies for materials, dimensions, binding types.
+
+
+::: notes 
+Presenter:
+Wrap up with these five take-aways. They’ll guide you whether you’re modeling a medieval codex or a modern artist’s book in Linked Art. 
+:::
+
+--- 
+
+## Examples in LUX
+
+Example #1
+
+- Item: [Diary of Alfred Gurton on a trip to India](https://lux.collections.yale.edu/view/object/709fe0da-ac43-40ed-9a46-2b099460c655)
+- [Link to JSON-LD](https://lux.collections.yale.edu/data/object/709fe0da-ac43-40ed-9a46-2b099460c655)
+- [Record in Quicksearch](https://search.library.yale.edu/catalog/12471442)
+
+![](presentations/linked_art/image2.png)
+
+::: notes
+Important links: 
+
+Item: Diary of Alfred Gurton on a trip to India: https://lux.collections.yale.edu/view/object/709fe0da-ac43-40ed-9a46-2b099460c655
+
+Link to JSON-LD: https://lux.collections.yale.edu/data/object/709fe0da-ac43-40ed-9a46-2b099460c655
+
+Record in Quicksearch: https://search.library.yale.edu/catalog/12471442
+:::
+
+---
+
+## Overview of the JSON-LD
+
+- We’ll unpack each part of this JSON-LD document:
+  
+  1. Top-Level Identity  
+  2. Work linkage (`carries`)  
+  3. Collection membership (`member_of`)  
+  4. Equivalencies (`equivalent`)  
+  5. Related texts (`subject_of`)  
+  6. Classification (`classified_as`)  
+  7. Identifiers & Names (`identified_by`)  
+  8. Descriptive statements (`referred_to_by`)  
+  9. Thumbnail representation (`representation`)  
+  10. API links (`_links`)
+
+
+::: notes
+Presenter:
+This slide lays out our roadmap. We’ve got a complex object; let’s break it into digestible pieces.
+:::
+
+
+---
+
+## Top-Level Identity
+
+```json
+{
+  "id": "https://lux.collections.yale.edu/data/object/709fe0da-ac43-40ed-9a46-2b099460c655",
+  "type": "HumanMadeObject",
+  "_label": "Diary of Alfred Gurton on a trip to India",
+  "carries": [
+    {
+      "id": "https://lux.collections.yale.edu/data/text/ffb63bd1-7ed8-4de2-9292-defb374b53f0",
+      "type": "LinguisticObject",
+      "_label": "Diary of Alfred Gurton on a trip to India"
+    }
+  ],
+  "@context": "https://linked.art/ns/v1/linked-art.json"}
+```
+
+- `id`: Unique HTTP URI
+
+- `type`: CIDOC-CRM class → physical object
+
+- `_label:` Human-readable title
+
+- `@context:` Linked Art JSON-LD context
+
+
+::: notes 
+Presenter:
+Every Linked Art document begins with these. They ground the object in CIDOC-CRM and JSON-LD.
+:::
+
+
+---
+
+## Linking to the Work (carries)
+
+```json
+  "carries": [
+    {
+      "id": "https://lux.collections.yale.edu/data/text/ffb63bd1-7ed8-4de2-9292-defb374b53f0",
+      "type": "LinguisticObject",
+      "_label": "Diary of Alfred Gurton on a trip to India"
+    }
+  ]
+```
+
+The Object “carries” the Work (the text)
+
+- type: `LinguisticObject` marks the conceptual diary content
+
+::: notes
+Presenter:
+This crucial link separates the physical codex (Object) from its text (Work). 
+:::
+
+---
+
+## Collection Membership (member_of)
+
+```json
+  "member_of": [
+    {
+      "id": "https://lux.collections.yale.edu/data/set/6d003cce-882b-45e2-896d-6462d7f0114c",
+      "type": "Set",
+      "_label": "Rare Books and Manuscripts, Yale Center for British Art"
+    }
+  ]
+```
+
+- Indicates this object’s belonging to a named collection or set
+
+::: notes 
+Presenter:
+Use member_of when you need to show collection structure in Linked Art. 
+:::
+
+
+---
+
+## Equivalencies (equivalent)
+
+```json
+"equivalent": [
+  {
+    "id": "https://linked-art.library.yale.edu/node/ce5f592d-c116-454a-9f2a-881e0b82fbb7",
+    "type": "HumanMadeObject",
+    "_label": "Diary of Alfred Gurton on a trip to India"
+  }
+]
+```
+
+- Points to alternate URIs for the same object
+
+- Supports interoperability across systems
+
+::: notes 
+Presenter:
+Whenever your object appears under multiple domains or APIs, use equivalent. 
+:::
+
+---
+
+## Related Texts (subject_of)
+```json
+ "subject_of": [
+    {
+      "type": "LinguisticObject",
+      "_label": "Content of IIIF Manifest",
+      "digitally_carried_by": [
+        {
+          "type": "DigitalObject",
+          "_label": "IIIF v3 manifest for \"Diary of Alfred Gurton on a trip to India\"",
+          "format": "application/json",
+          "conforms_to": [
+            {
+              "id": "http://iiif.io/api/presentation/3/context.json",
+              "type": "InformationObject",
+              "_label": "IIIF v3"
+            }
+          ],
+          "access_point": [
+            {
+              "id": "https://manifests.collections.yale.edu/ycba/orb/12471442",
+              "type": "DigitalObject"
+            }
+          ],
+          "identified_by": [
+            {
+              "type": "Name",
+              "content": "IIIF v3 manifest for \"Diary of Alfred Gurton on a trip to India\"",
+              "classified_as": [
+                {
+                  "id": "https://lux.collections.yale.edu/data/concept/f7ef5bb4-e7fb-443d-9c6b-371a23e717ec",
+                  "type": "Type",
+                  "_label": "Primary Name",
+                  "equivalent": [
+                    {
+                      "id": "http://vocab.getty.edu/aat/300404670",
+                      "type": "Type",
+                      "_label": "Primary Name"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "LinguisticObject",
+      "_label": "Text of Repository Page 1",
+      "digitally_carried_by": [
+        {
+          "type": "DigitalObject",
+          "_label": "Repository Page",
+          "access_point": [
+            {
+              "id": "https://collections.britishart.yale.edu/catalog/orbis:12471442",
+              "type": "DigitalObject"
+            }
+          ],
+          "classified_as": [
+            {
+              "id": "https://lux.collections.yale.edu/data/concept/2eca07bd-be42-4ef5-9ec5-87c1bbfe639d",
+              "type": "Type",
+              "_label": "Web Page",
+              "equivalent": [
+                {
+                  "id": "http://vocab.getty.edu/aat/300264578",
+                  "type": "Type",
+                  "_label": "Web Page"
+                }
+              ]
+            }
+          ],
+          "identified_by": [
+            {
+              "type": "Name",
+              "content": "View this record on the Yale Center for British Art website",
+              "classified_as": [
+                {
+                  "id": "https://lux.collections.yale.edu/data/concept/f7ef5bb4-e7fb-443d-9c6b-371a23e717ec",
+                  "type": "Type",
+                  "_label": "Primary Name",
+                  "equivalent": [
+                    {
+                      "id": "http://vocab.getty.edu/aat/300404670",
+                      "type": "Type",
+                      "_label": "Primary Name"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+```
+
+- subject_of: descriptive or supplementary texts
+
+- Each `LinguisticObject` can nest multiple `DigitalObject` carriers
+
+
+::: notes 
+Presenter:
+This section shows both the IIIF manifest and a repository web page as textual “subjects” of the object. 
+:::
+
+
+---
+
+## Classification (classified_as)
+
+```json
+"classified_as": [
+    {
+      "id": "https://lux.collections.yale.edu/data/concept/23476793-0f3c-4379-ab7f-118701149b2b",
+      "type": "Type",
+      "_label": "Manuscript",
+      "equivalent": [
+        {
+          "id": "http://vocab.getty.edu/aat/300028569",
+          "type": "Type",
+          "_label": "Manuscript"
+        }
+      ],
+      "classified_as": [
+        {
+          "id": "https://lux.collections.yale.edu/data/concept/4ea65dc4-76bc-45b7-b54c-a1ca4783d4e2",
+          "type": "Type",
+          "_label": "Type of Object",
+          "equivalent": [
+            {
+              "id": "http://vocab.getty.edu/aat/300435443",
+              "type": "Type",
+              "_label": "Type of Object"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "https://lux.collections.yale.edu/data/concept/b34ad31c-4a2f-4cef-aee3-ae8d824e42a2",
+      "type": "Type",
+      "_label": "Collection Item",
+      "equivalent": [
+        {
+          "id": "http://vocab.getty.edu/aat/300404024",
+          "type": "Type",
+          "_label": "Collection Item"
+        }
+      ]
+    }
+  ]
+```
+
+- Domain vocabularies (Getty AAT, etc.)
+
+- Multiple facets (object type, collection status)
+
+::: notes 
+Presenter:
+Use classified_as to tag your object with controlled vocabularies. 
+:::
+
+
+---
+
+## Identifiers & Names (identified_by)
+
+```json
+"identified_by": [
+  {
+    "type": "Name",
+    "content": "Diary of Alfred Gurton on a trip to India",
+    "classified_as": [
+      {
+        "id": "https://lux.collections.yale.edu/data/concept/f7ef5bb4-e7fb-443d-9c6b-371a23e717ec",
+        "type": "Type",
+        "_label": "Primary Name",
+        "equivalent": [
+          {
+            "id": "http://vocab.getty.edu/aat/300404670",
+            "type": "Type",
+            "_label": "Primary Name"
+          }
+        ]
+      },
+      {
+        "id": "https://lux.collections.yale.edu/data/concept/ab99d278-9323-4d84-8e97-1846058fc587",
+        "type": "Type",
+        "_label": "Sort Name",
+        "equivalent": [
+          {
+            "id": "http://vocab.getty.edu/aat/300451544",
+            "type": "Type",
+            "_label": "Final: Sort Title"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "Identifier",
+    "content": "DS413.G87 D53 1918",
+    "classified_as": [
+      {
+        "id": "https://lux.collections.yale.edu/data/concept/35961a03-7a62-4494-bd50-f1630477035f",
+        "type": "Type",
+        "_label": "Call Number",
+        "equivalent": [
+          {
+            "id": "http://vocab.getty.edu/aat/300311706",
+            "type": "Type",
+            "_label": "Call Number"
+          }
+        ]
+      }
+    ]
+  }
+]
+
+```
+
+- Name vs. Identifier distinctions
+
+- Who assigned the identifier (assigned_by)
+
+
+::: notes 
+Presenter:
+Clear separation between display names and system identifiers helps both users and machines. 
+:::
+
+--- 
+
+## Descriptive Statements (referred_to_by)
+
+```json
+ "referred_to_by": [
+    {
+      "type": "LinguisticObject",
+      "content": "1 volume (152 pages) : 21 cm",
+      "classified_as": [
+        {
+          "id": "https://lux.collections.yale.edu/data/concept/91fd5ce0-b58a-4571-9fde-839aed0c876e",
+          "type": "Type",
+          "_label": "Physical Statement",
+          "equivalent": [
+            {
+              "id": "http://vocab.getty.edu/aat/300435452",
+              "type": "Type",
+              "_label": "Physical Statement"
+            }
+          ],
+          "classified_as": [
+            {
+              "id": "https://lux.collections.yale.edu/data/concept/b079998d-bb47-470a-ad7d-d938bd091f8a",
+              "type": "Type",
+              "_label": "Brief Text",
+              "equivalent": [
+                {
+                  "id": "http://vocab.getty.edu/aat/300418049",
+                  "type": "Type",
+                  "_label": "Brief Text"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "LinguisticObject",
+      "content": "Plan your visit to Yale Center for British Art",
+      "classified_as": [
+        {
+          "id": "https://lux.collections.yale.edu/data/concept/d97f2e4a-1549-4c4b-9a27-bcf41a2b4972",
+          "type": "Type",
+          "_label": "Visitors' Statement",
+          "equivalent": [
+            {
+              "id": "http://vocab.getty.edu/aat/300025883",
+              "type": "Type",
+              "_label": "Visitors' Statement"
+            }
+          ]
+        }
+      ],
+      "_content_html": "\u003Cspan class=\"lux_data\"\u003E\u003Ca href=\"https://britishart.yale.edu/hours-and-visitor-guidelines\"\u003EPlan your visit to Yale Center for British Art\u003C/a\u003E\u003C/span\u003E"
+    },
+    {
+      "type": "LinguisticObject",
+      "content": "Accessible by request in the Yale Center for British Art Study Room",
+      "classified_as": [
+        {
+          "id": "https://lux.collections.yale.edu/data/concept/03f4eb19-0611-4f31-8e09-fc111c52f898",
+          "type": "Type",
+          "_label": "Access Statement",
+          "equivalent": [
+            {
+              "id": "http://vocab.getty.edu/aat/300133046",
+              "type": "Type",
+              "_label": "Access Statement"
+            }
+          ],
+          "classified_as": [
+            {
+              "id": "https://lux.collections.yale.edu/data/concept/b079998d-bb47-470a-ad7d-d938bd091f8a",
+              "type": "Type",
+              "_label": "Brief Text",
+              "equivalent": [
+                {
+                  "id": "http://vocab.getty.edu/aat/300418049",
+                  "type": "Type",
+                  "_label": "Brief Text"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "_content_html": "\u003Cspan class='lux_data'\u003E\u003Ca href='https://aeon.library.yale.edu/aeon.dll?Action=10&Form=20&Value=GenericRequestMonograph&Site=YCBA&mfhdID=12615401&CallNumber=DS413.G87+D53+1918&ItemTitle=Diary+of+Alfred+Gurton+on+a+trip+to+India'/\u003EAccessible by request in the Yale Center for British Art Study Room\u003C/a\u003E\u003C/span\u003E"
+    }
+  ]
+```
+
+- Free-text notes, dimensions, access instructions
+
+- Can include HTML for rich links
+
+::: notes 
+Presenter:
+Use referred_to_by for any unstructured or semi-structured descriptive text. 
+:::
+
+
+
+---
+
+## Thumbnail Representation (representation)
+
+```json
+"representation": [
+    {
+      "type": "VisualItem",
+      "_label": "Content of Thumbnail",
+      "digitally_shown_by": [
+        {
+          "type": "DigitalObject",
+          "_label": "Thumbnail",
+          "format": "image/jpeg",
+          "access_point": [
+            {
+              "id": "https://images.collections.yale.edu/iiif/2/ycba:b3df6f7b-0c23-42e8-a020-04f7d3639271/full/!480,480/0/default.jpg",
+              "type": "DigitalObject"
+            }
+          ],
+          "classified_as": [
+            {
+              "id": "https://lux.collections.yale.edu/data/concept/b28a48ef-4d40-44d1-81c9-27f0411b030b",
+              "type": "Type",
+              "_label": "Digital Image for \"Diary of Alfred Gurton on a trip to India\"",
+              "equivalent": [
+                {
+                  "id": "http://vocab.getty.edu/aat/300215302",
+                  "type": "Type",
+                  "_label": "Digital Image for \"Diary of Alfred Gurton on a trip to India\""
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+```
+
+- VisualItem wraps any visual depiction
+
+- `digitally_shown_by` links to image data
+
+
+::: notes 
+Presenter:
+This is your thumbnail: a little visual summary for UI lists or search results. 
+:::
+
+
+---
+
+## Hypermedia Links (_links)
+
+```json
+{
+  "_links": {
+    "curies": [
+      {
+        "name": "la",
+        "href": "https://linked.art/api/1.0/rels/{rel}",
+        "templated": true
+      },
+      {
+        "name": "lux",
+        "href": "https://lux.collections.yale.edu/api/rels/{rel}",
+        "templated": true
+      }
+    ],
+    "self": {
+      "href": "https://lux.collections.yale.edu/data/object/709fe0da-ac43-40ed-9a46-2b099460c655"
+    },
+    "lux:itemDepartment": {
+      "href": "https://lux.collections.yale.edu/api/search/agent?q=%7B%22curated%22%3A%7B%22containingItem%22%3A%7B%22id%22%3A%22https%3A%2F%2Flux.collections.yale.edu%2Fdata%2Fobject%2F709fe0da-ac43-40ed-9a46-2b099460c655%22%7D%7D%7D",
+      "_estimate": 1
+    },
+    "lux:itemUnit": {
+      "href": "https://lux.collections.yale.edu/api/facets/item?q=%7B%22id%22%3A%22https%3A%2F%2Flux.collections.yale.edu%2Fdata%2Fobject%2F709fe0da-ac43-40ed-9a46-2b099460c655%22%7D&name=responsibleUnits",
+      "_estimate": 1
+    }
+  }
+}
+
+```
+
+- Curies for link-rel namespaces
+
+- `self` for the canonical URI
+
+- Custom API controls (`lux:` prefixes)
+
+
+::: notes 
+Presenter:
+Finally, _links provide navigational affordances for clients and browsers. 
+:::
+
+---
+
+##  Recap
+
+- **Object vs. Work** - `HumanMadeObject` + `carries:LinguisticObject`
+
+- Membership, equivalencies, and hypermedia via `member_of`/`equivalent`/`_links`
+
+- Textual and digital relationships via `subject_of`
+
+- Tagging & identification via `classified_as`/`identified_by`
+
+- Free text with `referred_to_by` and visuals with `representation`
+
+
+::: notes 
+Presenter:
+Keep this template handy—most Linked Art objects follow the same pattern, with domain-specific tweaks for manuscripts. 
+:::
+
+---
+
+## Examples in LUX
+
+Example #2
+
+- Item: Horace Walpole's Journal, 1783-1791
+
+![](presentations/linked_art/image.png)
+
+---
+
+## Context & Namespaces
+
+- Item: [Horace Walpole's Journal, 1783-1791](https://lux.collections.yale.edu/view/object/0482665f-bd9f-47fc-a86f-e78e66c5e00b)
+- [Link to JSON-LD](https://lux.collections.yale.edu/data/object/0482665f-bd9f-47fc-a86f-e78e66c5e00b)
+- [Record in Quicksearch](https://search.library.yale.edu/catalog/14962535)
+
+```json
+ "@context": "https://linked.art/ns/v1/linked-art.json"
+```
+
+- Declares term definitions (classes & properties).
+- Ensures consistent interpretation by clients.
+
+---
+
+## Top-Level Identity
+
+- Item: Horace Walpole's Journal, 1783-1791
+
+```json
+{
+  "id": "https://lux.collections.yale.edu/data/object/0482665f-bd9f-47fc-a86f-e78e66c5e00b",
+  "type": "HumanMadeObject",
+  "_label": "Horace Walpole's Journal, 1783-1791",
+}
+```
+
+- **id**: Unique URI for the object.
+- **type**: Linked Art class of the object.
+- **_label**: Human-readable title.
+
+---
+
+## Structural Relationship: carries
+
+- Item: Horace Walpole's Journal, 1783-1791
+
+```json
+  "carries": [
+    {
+      "id": "https://lux.collections.yale.edu/data/text/401a37d6-09d2-4068-84fc-e9547c614bab",
+      "type": "LinguisticObject",
+      "_label": "Horace Walpole's Journal, 1783-1791"
+    }
+  ]
+```
+
+- Links the physical object to its textual content.
+
+---
+
+## Physical Measurements: dimension
+
+- Item: Horace Walpole's Journal, 1783-1791
+
+```json
+ "dimension": [
+    {
+      "type": "Dimension",
+      "unit": {
+        "id": "https://lux.collections.yale.edu/data/concept/b0ac44c2-83ba-4eae-9a01-fcfa547dd5b0",
+        "type": "Type",
+        "_label": "Numbers",
+        "equivalent": [
+          {
+            "id": "http://vocab.getty.edu/aat/300055665",
+            "type": "Type",
+            "_label": "Numbers"
+          }
+        ]
+      },
+      "value": 3,
+      "_label": "3 parts",
+      "classified_as": [
+        {
+          "id": "https://lux.collections.yale.edu/data/concept/861dda5d-03c4-44d6-a2a0-d699a3c7a791",
+          "type": "Type",
+          "_label": "Number of Parts",
+          "equivalent": [
+            {
+              "id": "http://vocab.getty.edu/aat/300241583",
+              "type": "Type",
+              "_label": "Number of Parts"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+```
+
+- Encodes measurable attributes using controlled terms.
+
+---
+
+## Equivalencies: equivalent
+
+- Item: Horace Walpole's Journal, 1783-1791
+
+```json
+"equivalent": [
+    {
+      "id": "https://linked-art.library.yale.edu/node/bea2ac1e-16f8-4bcd-8e99-bed1f68f5ba2",
+      "type": "HumanMadeObject",
+      "_label": "Horace Walpole's Journal, 1783-1791"
+    }]
+```
+
+- Points to alternate URIs of the same object for interoperability.
+
+---
+
+## Descriptive Texts: subject_of
+
+- Item: Horace Walpole's Journal, 1783-1791
+
+```json
+"subject_of": [
+  {
+    "type": "LinguisticObject",
+    "_label": "Text of Repository Page 1",
+    "digitally_carried_by": [
+      {
+        "type": "DigitalObject",
+        "_label": "Repository Page",
+        "access_point": [
+          {
+            "id": "https://search.library.yale.edu/catalog/14962535",
+            "type": "DigitalObject"
+          }
+        ],
+        "classified_as": [
+          {
+            "id": "https://lux.collections.yale.edu/data/concept/2eca07bd-be42-4ef5-9ec5-87c1bbfe639d",
+            "type": "Type",
+            "_label": "Web Page",
+            "equivalent": [
+              {
+                "id": "http://vocab.getty.edu/aat/300264578",
+                "type": "Type",
+                "_label": "Web Page"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]
+          
+```
+
+- Shows related texts and their digital access.
+
+---
+
+## Classification: classified_as
+
+- Item: Horace Walpole's Journal, 1783-1791
+
+```json
+"classified_as": [
+    {
+      "id": "https://lux.collections.yale.edu/data/concept/45c0c2d7-1c7e-4333-994a-41b41a7d8f07",
+      "type": "Type",
+      "_label": "Dissertations and Theses",
+      "equivalent": [
+        {
+          "id": "http://vocab.getty.edu/aat/300028028",
+          "type": "Type",
+          "_label": "Dissertations and Theses"
+        }
+      ],
+      "classified_as": [
+        {
+          "id": "https://lux.collections.yale.edu/data/concept/4ea65dc4-76bc-45b7-b54c-a1ca4783d4e2",
+          "type": "Type",
+          "_label": "Type of Object",
+          "equivalent": [
+            {
+              "id": "http://vocab.getty.edu/aat/300435443",
+              "type": "Type",
+              "_label": "Type of Object"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "https://lux.collections.yale.edu/data/concept/23476793-0f3c-4379-ab7f-118701149b2b",
+      "type": "Type",
+      "_label": "Manuscript",
+      "equivalent": [
+        {
+          "id": "http://vocab.getty.edu/aat/300028569",
+          "type": "Type",
+          "_label": "Manuscript"
+        }
+      ],
+      "classified_as": [
+        {
+          "id": "https://lux.collections.yale.edu/data/concept/4ea65dc4-76bc-45b7-b54c-a1ca4783d4e2",
+          "type": "Type",
+          "_label": "Type of Object",
+          "equivalent": [
+            {
+              "id": "http://vocab.getty.edu/aat/300435443",
+              "type": "Type",
+              "_label": "Type of Object"
+            }
+          ]
+        }
+      ]
+    }]
+```
+
+- Tags the object with domain vocabularies (Getty AAT terms).
+
+---
+
+## Identifiers & Names: identified_by
+
+- Item: Horace Walpole's Journal, 1783-1791
+
+```json
+"identified_by": [
+    {
+      "type": "Name",
+      "content": "Horace Walpole's Journal, 1783-1791",
+      "classified_as": [
+        {
+          "id": "https://lux.collections.yale.edu/data/concept/f7ef5bb4-e7fb-443d-9c6b-371a23e717ec",
+          "type": "Type",
+          "_label": "Primary Name",
+          "equivalent": [
+            {
+              "id": "http://vocab.getty.edu/aat/300404670",
+              "type": "Type",
+              "_label": "Primary Name"
+            }
+          ]
+        },
+        {
+          "id": "https://lux.collections.yale.edu/data/concept/ab99d278-9323-4d84-8e97-1846058fc587",
+          "type": "Type",
+          "_label": "Sort Name",
+          "equivalent": [
+            {
+              "id": "http://vocab.getty.edu/aat/300451544",
+              "type": "Type",
+              "_label": "Final: Sort Title"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Identifier",
+      "content": "ils:yul:mfhd:14947101",
+      "assigned_by": [
+        {
+          "type": "AttributeAssignment",
+          "carried_out_by": [
+            {
+              "id": "https://lux.collections.yale.edu/data/group/d07b9b86-0a1e-4026-aa4c-8ecba8bbd9c9",
+              "type": "Group",
+              "_label": "Yale University Library"
+            }
+          ]
+        }
+      ],
+      "classified_as": [
+        {
+          "id": "https://lux.collections.yale.edu/data/concept/89630361-18a3-4c4b-bcd7-16894d95defd",
+          "type": "Type",
+          "_label": "System-Assigned Number",
+          "equivalent": [
+            {
+              "id": "http://vocab.getty.edu/aat/300435704",
+              "type": "Type",
+              "_label": "System-Assigned Number"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+```
+
+- Names for display and sorting; system numbers for library management.
+
+---
+
+## Other Statements: referred_to_by
+
+- Item: Horace Walpole's Journal, 1783-1791
+
+```json
+"referred_to_by": [
+    {
+      "type": "LinguisticObject",
+      "content": "2 volumes in 3 (853 leaves) ; 28 cm",
+      "classified_as": [
+        {
+          "id": "https://lux.collections.yale.edu/data/concept/91fd5ce0-b58a-4571-9fde-839aed0c876e",
+          "type": "Type",
+          "_label": "Physical Statement",
+          "equivalent": [
+            {
+              "id": "http://vocab.getty.edu/aat/300435452",
+              "type": "Type",
+              "_label": "Physical Statement"
+            }
+          ],
+          "classified_as": [
+            {
+              "id": "https://lux.collections.yale.edu/data/concept/b079998d-bb47-470a-ad7d-d938bd091f8a",
+              "type": "Type",
+              "_label": "Brief Text",
+              "equivalent": [
+                {
+                  "id": "http://vocab.getty.edu/aat/300418049",
+                  "type": "Type",
+                  "_label": "Brief Text"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    } ]
+```
+
+- Free-text notes: physical description, summary holdings, access.
+
+---
+
+## Hypermedia Links: _links
+
+- Item: Horace Walpole's Journal, 1783-1791
+
+```json
+  "_links": {
+    "curies": [
+      {
+        "name": "la",
+        "href": "https://linked.art/api/1.0/rels/{rel}",
+        "templated": true
+      },
+      {
+        "name": "lux",
+        "href": "https://lux.collections.yale.edu/api/rels/{rel}",
+        "templated": true
+      }
+    ],
+    "self": {
+      "href": "https://lux.collections.yale.edu/data/object/0482665f-bd9f-47fc-a86f-e78e66c5e00b"
+    },
+    "lux:itemUnit": {
+      "href": "https://lux.collections.yale.edu/api/facets/item?q=%7B%22id%22%3A%22https%3A%2F%2Flux.collections.yale.edu%2Fdata%2Fobject%2F0482665f-bd9f-47fc-a86f-e78e66c5e00b%22%7D&name=responsibleUnits",
+      "_estimate": 1
+    }
+  }
+
+```
+
+- Navigation and API controls for linked data discovery.
+
+---
+
+## Thanks! 
